@@ -61,7 +61,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let myURL = URL(string: "http://192.168.10.36")
+        let myURL = URL(string: "http://beta.trusty.fund")
         let myRequest = URLRequest(url: myURL!)
         webView.load(myRequest)
         setNeedsStatusBarAppearanceUpdate()
@@ -71,11 +71,18 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: WKUIDelegate {
-    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        print("1")
+        print(error)
+    }
 }
 extension ViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        print("nav finish");
+        print("nav finish")
+    }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        print("failed")
+        print(error)
     }
 }
 
