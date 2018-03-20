@@ -1,0 +1,6 @@
+framework module Pods_trusty {
+  umbrella header "Pods-trusty-umbrella.h"
+
+  export *
+  module * { export * }
+}
