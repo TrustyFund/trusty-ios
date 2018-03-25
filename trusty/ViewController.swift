@@ -99,7 +99,7 @@ class ViewController: UIViewController {
             modifiedSince: Date(timeIntervalSince1970: 0),
             completionHandler: {});
         
-        let myURL = URL(string: "http://192.168.10.36:8080/index.html")
+        let myURL = URL(string: "http://trusty.fund")
         let myRequest = URLRequest(url: myURL!)
         webView.load(myRequest)
         setNeedsStatusBarAppearanceUpdate()
