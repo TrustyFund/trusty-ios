@@ -48,7 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
         
         window?.rootViewController = ViewController()
-        setStatusBarBackgroundColor(color: UIColor(colorLiteralRed: 30/255, green: 34/255, blue: 37/255, alpha: 1))
+        //setStatusBarBackgroundColor(color: UIColor(colorLiteralRed: 30/255, green: 34/255, blue: 37/255, alpha: 1))
 
         return true
     }

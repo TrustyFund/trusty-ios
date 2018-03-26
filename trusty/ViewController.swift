@@ -15,6 +15,7 @@ import JavaScriptCore
 class ViewController: UIViewController {
     
     var webView: WKWebView!
+    var splashView: UIView?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -48,8 +49,15 @@ class ViewController: UIViewController {
         let disableCalloutScript = WKUserScript(source: disableCalloutScriptString, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         controller.addUserScript(disableCalloutScript)
         
-        let redirectConsoleScriptString = "document.addEventListener('message', function(e){ window.webkit.messageHandlers.iosListener.postMessage(e.data); })"
-        let redirectConsoleScript = WKUserScript(source: redirectConsoleScriptString, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        let redirectConsoleScriptString = "console.error = console.log = function(message) {" +
+            "window.webkit.messageHandlers.iosListener.postMessage(message);" +
+        "};" +
+        "window.onerror = function(error) {" +
+        "console.error(error); " +
+        "return false; " +
+        "};"
+        
+        let redirectConsoleScript = WKUserScript(source: redirectConsoleScriptString, injectionTime: .atDocumentStart, forMainFrameOnly: true)
         controller.addUserScript(redirectConsoleScript)
         
         let subscribeFunctionScriptString = "function subscribeFCMToken(callback) { " +
@@ -83,13 +91,24 @@ class ViewController: UIViewController {
         view.addSubview(webView)
         webView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor),
-            webView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor),
+            webView.topAnchor.constraint(equalTo: view.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor)])
-        //webView.backgroundColor = .black
 
         NotificationCenter.default.addObserver(self, selector: #selector(newToken), name: NSNotification.Name("newToken"), object: nil)
+        let launchStoryboard = UIStoryboard(name: "LaunchScreen", bundle: nil)
+        let splashController = launchStoryboard.instantiateInitialViewController()
+        if let splashView = splashController?.view {
+            self.splashView = splashView
+            view.addSubview(splashView)
+            splashView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                splashView.topAnchor.constraint(equalTo: view.topAnchor),
+                splashView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                splashView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                splashView.trailingAnchor.constraint(equalTo: view.trailingAnchor)])
+        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -99,7 +118,7 @@ class ViewController: UIViewController {
             modifiedSince: Date(timeIntervalSince1970: 0),
             completionHandler: {});
         
-        let myURL = URL(string: "http://trusty.fund")
+        let myURL = URL(string: "https://trusty.fund")
         let myRequest = URLRequest(url: myURL!)
         webView.load(myRequest)
         setNeedsStatusBarAppearanceUpdate()
@@ -117,6 +136,8 @@ extension ViewController: WKUIDelegate {
 extension ViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         print("nav finish")
+        self.splashView?.isHidden = true
+        //self.printHTML()
     }
     /*func printHTML() {
         webView.evaluateJavaScript("document.documentElement.outerHTML.toString()",
@@ -142,7 +163,7 @@ extension ViewController: WKScriptMessageHandler{
             
             break
         default:
-            print("message: \(message.body)")
+            print("console: \(message.body)")
         }
     }
 }
